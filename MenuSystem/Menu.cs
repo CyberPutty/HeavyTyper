@@ -4,34 +4,36 @@ using System.Text;
 
 namespace HeavyTyper.MenuSystem
 {
-    abstract class Menu
+    class Menu
     {
         public string header;
-        public List<Option> options;
+        public List<IRoute> options;
         int selectedIndex = 0;
         public string footer;
         public ConsoleColor selectedColor = ConsoleColor.Green;
         public ConsoleColor unselectedColor= ConsoleColor.Cyan;
-        public Menu(string header,List<Option> options,string footer)
+        public bool active = true;
+        public Menu(string header,List<IRoute> options,string footer)
         {
             this.header = header;
             this.footer = footer;
             this.options = options;
-            this.options[0].color = selectedColor;
+            this.options[0].Color = selectedColor;
         }
-       public void Print() 
-        {          
-            Console.Clear();
+       public void Run() 
+        {
+            do {
+             Console.Clear();
             Console.CursorVisible = false;
             if (header.Length > 0) 
             {
                 Console.WriteLine(header);
             }
             
-            foreach (Option option in options) 
+            foreach (IRoute option in options) 
             {
-                Console.ForegroundColor = option.color;
-                Console.WriteLine(option.text);
+                Console.ForegroundColor = option.Color;
+                Console.WriteLine(option.Text);
                 
             }
             Console.ResetColor();
@@ -41,6 +43,8 @@ namespace HeavyTyper.MenuSystem
             }
             
             GetInput(Console.ReadKey());
+            } while (active);
+           
         }
         public void GetInput(ConsoleKeyInfo key) 
         {
@@ -50,53 +54,49 @@ namespace HeavyTyper.MenuSystem
                     if (selectedIndex > 0)
                     {
                         MoveUp();
-                        Print();
                     }
                     else 
                     {
                         Console.WriteLine("Out of bounds sound");
-                        Print();
                     }
                     break;
                 case ConsoleKey.DownArrow:
                     if (selectedIndex < options.Count-1)
                     {
                         MoveDown();
-                        Print();
                     }
                     else 
                     {
                         Console.WriteLine("Out of bounds sound");
-                        Print();
                     }
                     break;
                 case ConsoleKey.Enter:
-                    Run();
+                    Select();
                     break;
                 case ConsoleKey.Q:
+                    active = false;
                     return;
                 default:
-                    Print();
                     break;
                   
             }
         }
-        public string Run()
+        public void Select()
         {
-            return options[selectedIndex].text;
+            options[selectedIndex].Run();
         }
 
         public void MoveUp() 
         {
-            options[selectedIndex].color = unselectedColor;
+            options[selectedIndex].Color = unselectedColor;
             this.selectedIndex = selectedIndex - 1;
-            options[selectedIndex].color = selectedColor;
+            options[selectedIndex].Color = selectedColor;
         }
         public void MoveDown() 
         {
-            options[selectedIndex].color = unselectedColor;
+            options[selectedIndex].Color = unselectedColor;
             this.selectedIndex = selectedIndex + 1;
-            options[selectedIndex].color = selectedColor;
+            options[selectedIndex].Color = selectedColor;
         }
     }
 }
